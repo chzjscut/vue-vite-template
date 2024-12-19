@@ -1,0 +1,15 @@
+{
+  "name": "vue-sourcecode-doc",
+  "version": "1.0.0",
+  "description": "vue(v2.6.11) source code analysis(vue源码解析)",
+  "main": "index.js",
+  "author": "chenzijing <zjcscut@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs"
+  },
+  "devDependencies": {
+    "vuepress": "^2.0.0-beta.43"
+  }
+}

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>es6 promise</title>
+</head>
+<body>
+	<div>
+		JS里一个promise可以有以下几种基本状态：
+
+			1. nothing happened yet
+			2. "locked in" to another promise
+			3. fulfilled
+			4. rejected
+
+		其中{1,2}为pending，{3,4}为settled，{2,3,4}为resolved，{1}为unresolved。
+
+		参考：https://github.com/domenic/promises-unwrapping/blob/master/docs/states-and-fates.md
+	</div>
+	<script>
+		
+		var p1 = new Promise((resolve, reject) => {
+		    function F() {
+		        resolve(new Promise((resolve, reject) => {
+		            console.log(p1);  //  Promise { <state>: "pending" }
+		            setTimeout(resolve, 2000, 'new Promise resolve');
+		        }))
+		    }
+		    setTimeout(F, 1000, 'p1 resolve');
+		});
+		p1.then(function(value) {
+		    console.log(value);  //  new Promise resolve
+		    console.log(p1);  //  Promise { <state>: "fulfilled", <value>: "new Promise resolve" }
+		})
+	</script>
+</body>
+</html>

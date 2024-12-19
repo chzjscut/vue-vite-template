@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>浏览器渲染机制</title>
+</head>
+<body>
+  <a href="https://juejin.cn/post/6844903761949753352" target="_blank">链接1</a>
+  <a href="https://zhuanlan.zhihu.com/p/580956436" target="_blank">链接2</a>
+
+  <h4>浏览器渲染流程</h4>
+  <p>一、解析：主线程开始解析HTML</p>
+  <p>1、浏览器收到HTML，HTML解析器开始解析HTML，生成DOM Tree</p>
+  <p>2、解析遇到CSS(style、行内、link)，CSS解析器开始对CSS进行解析，生成CSSOM（ 即styleSheets）</p>
+  <p>3、遇到 script 时，渲染线程停止解析剩余的 HTML 文档，等待Javascript 资源加载，Javascript引擎执行脚本完成后，HTML再继续解析</p>
+  <p>ps：javascript 会阻塞HTML解析和页面渲染; css解析和HTML解析并行，不会阻塞HTML解析，但是会阻塞页面渲染；
+    JavaScript 脚本是依赖样式表的，会先等CSS文件加载并解析完成再执行，从而间接增加HTML解析的时间</p>
+  <p>二、生成Layout Tree(布局树）：根据DOM和styleSheets生成LayoutTree布局树（渲染树）</p>
+  <p>1、布局计算：渲染引擎计算出布局树中各元素的几何位置，并将计算结果保存在布局树中</p>
+  <p>ps：1、布局阶段的输出就是我们常说的盒子模型，它会精确地捕获每个元素在屏幕内的确切位置与大小</p>
+  <p>2、所有不可见的元素会被忽略，如head标签, display:none的元素，script标签等</p>
+  <p>三、分层，生成图层树</p>
+  <p>1、渲染引擎根据布局树生成图层树</p>
+  <p>四、绘制</p>
+  <p>1、主线程根据图层树生成绘制列表，交给合成线程</p>
+  <p>2、合成线程对图层进行分割，生成大小固定的图块</p>
+  <p>3、合成线程按照视口附近的图块来优先交给GPU进程</p>
+  <p>五、光栅化，生成位图</p>
+  <p>1、GPU进程根据不同图块生成位图，还给合成线程</p>
+  <p>六、合成</p>
+  <p>1、合成线程收到各图块位图之后，发出合成命令，交给浏览器主进程</p>
+  <p>七、显示界面</p>
+  <p>1、浏览器主进程然后进行界面显示</p>
+
+  <h4>渲染流程中的特殊情况：</h4>
+  <p>1、重排（回流）</p>
+  <p>指修改了元素几何属性，如位置、尺寸、内容、结构等变化，引发元素几何位置变化，浏览器需要重新计算样式、构建布局树，
+    开始之后的一系列子阶段，这个过程就叫重排。</p>
+  <p>重排需要更新完整的渲染流水线，所以开销也是最大的。</p>
+  <p>触发重排的情况：</p>
+  <ul>
+    <li>添加或删除可见的DOM元素</li>
+    <li>元素位置改变</li>
+    <li>元素尺寸改变</li>
+    <li>元素内容改变</li>
+    <li>改变字体大小会引发回流</li>
+    <li>页面渲染器初始化</li>
+    <li>浏览器窗口大小发生改变</li>
+    <li>当获取一些属性时，浏览器为了获得正确的值也会触发回流，这样使得浏览器优化无效，包括</li>
+    <ol>
+      <li>offset(Top/Left/Width/Height)</li>
+      <li>scroll(Top/Left/Width/Height)</li>
+      <li>cilent(Top/Left/Width/Height)</li>
+      <li>width,height</li>
+      <li>调用了getComputedStyle()或者IE的currentStyle</li>
+    </ol>
+  </ul>
+  <p>2、重绘</p>
+  <p>指修改了元素的外观样式，不会引起几何位置变化，直接入绘制阶段，生成绘制列表，然后执行之后的一系列子阶段，这个过程就叫重绘。
+    如背景颜色、边框颜色，文字颜色等</p>
+  <p>重绘省去了布局和分层阶段，所以执行效率会比重排操作要高一些。重排必然带来重绘，但是重绘未必带来重排</p>
+  <p>3、直接合成：如 transform:translate(100px, 100px)</p>
+  <p>指更改一个既不要布局也不要绘制的属性，直接分割图块阶段，然后交给浏览器主进程并不线上显示，这个过程叫做直接合成。
+    如 transform:translate(100px, 100px)；相对于重绘和重排，直接合成能大大提升效率</p>
+
+  <h4>减少重排（回流）、重绘方法：</h4>
+  <p>1、多次dom 操作合成一次，批量操作，例如 createDocumentFragment，vue框架虚拟DOM和diff算法</p>
+  <p>2、使用 class 操作样式，而不是频繁操作 style</p>
+  <p>3、处理动画时，使用will-change和transform 做优化：在css中使用will-change，渲染引擎会将该元素单独生成一个图层</p>
+
+  <!-- <h4>JavaScript执行机制</h4> -->
+  <h4>页面优化</h4>
+  <h4>1、加载阶段：如何让页面渲染快？</h4>
+  
+</body>
+</html>

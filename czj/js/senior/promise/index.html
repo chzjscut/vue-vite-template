@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>promise</title>
+</head>
+<body>
+  <script src="./js/promise.js"></script>
+  <script>
+    // setTimeout(() => {
+    //   console.log(4);
+    // })
+    let p1 = new Promise((resolve, reject) => {
+      resolve(1);
+      //reject('err');
+      // setTimeout(() => {
+      //   console.log(4)
+      //   resolve(1);
+      // })
+    });
+
+    console.log(1, p1)
+    //p1.then(res => console.log(2, res));
+    //p1.then(res => console.log(3, res));
+    //p1.then(res => console.log(4, res));
+    let p2 = p1.then(res => {
+      console.log(3, res)
+      return 3;
+    }, rej => {
+      console.log(rej)
+    });
+    let p3 = p2.then(res => {
+      console.log(res)
+    })
+    console.log(2, p1, p2, p3)
+
+    /**
+     * 以下是一些边界情况待完善：
+     */
+    
+    // 1、创建实例时没有传参
+    // let p2 = new Promise();
+    // console.log(p2)
+    console.log('-----------------------------------------');
+    // var a = new Promise(resolve => resolve('foo'));
+    // var b = new Promise((resolve, reject) => reject(a));
+    // b.then(res => {console.log('resolved:', res)}, rej => {console.log('err:', rej)})
+    
+    // 2、创建promise实例时如果resolve的入参是一个promise则新创建的promise实例的状态由resolve中的入参promise的状态决定；
+    var d = new Promise((resolve, reject) => reject('error 1'));
+    var e = new Promise(resolve => resolve(d)).then(res => {console.log(1, res)},rej=>console.log(2,rej));
+    //let promise = Promise.resolve("foo")
+    // let p = Promise.reject(promise);
+    // p.then(value => {
+    //   console.log("resolved",value);
+    // },err => {
+    //   console.log("rejected",err); // Promise {<fulfilled>: 'foo'}
+    // });
+  </script>
+</body>
+</html>

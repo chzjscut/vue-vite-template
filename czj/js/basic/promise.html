@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>promise,async,await</title>
+</head>
+<body>
+  <script>
+    //方法:
+    // Promise.all()
+    // Promise.allSettled()
+    // Promise.any(iterable) : 返回一个新的promise; 当可迭代对象内任意一个promise变为兑现状态(resolve),
+    //                         返回的promise也变为resolve状态;如果可迭代对象内所有promise都没有兑现（即都被拒绝了 reject）,
+    //                         返回的promise会变成拒绝状态
+    // Promise.race(iterable) : 
+    // Promise.resolve()
+    // Promise.reject()
+
+    // Promise.prototype.then(onFulfilled[, onRejected])
+    //   --onFulfilled: 当 Promise 变成接受状态（fulfilled）时调用的函数。
+    //                  如果该参数不是函数，则会在内部被替换为 (x) => x，即原样返回 promise 最终结果的函数
+    //   --onRejected:  当 Promise 变成拒绝状态（rejected）时调用的函数
+    //                  如果该参数不是函数，则会在内部被替换为一个 "Thrower" 函数 (it throws an error it received as argument)
+    // Promise.prototype.catch(): then()的语法糖，返回一个Promise
+    // Promise.prototype.finally()
+    // then的两个参数的定义规则和catch的定义很重要（见下面 example 3）
+
+
+    // Promise.any 和 Promise.race 区别:
+    Promise.any([Promise.reject(1), Promise.resolve(2)])
+      .then(res => console.log(res)).catch(e => console.log(e)); // 2;
+    Promise.race([Promise.reject(1), Promise.resolve(2)])
+      .then(res => console.log(res)).catch(e => console.log(e)); // 1;
+    Promise.any([Promise.reject(1), Promise.reject(2)])
+      .then(res => console.log(res)).catch(e => console.log(22, e)); // 22 AggregateError: All promises were rejected
+
+
+    //同步异步执行顺序
+    
+    //example 3：then和catch是二选一执行还是都会执行？
+    Promise.reject('a')
+      .then()
+      .then(res => console.log(res))
+      .then(()=>{}, (rej) => console.log(1, rej))
+      .catch(e => console.log(2, e));
+    //输出：1 'a', 而不是 2 'a';
+    //因为then()相当于执行then(() => {}, rej => { throw Error(rej) } ); 下一个then同理，所以reject一直会传递到最后一个then的第二个参数。
+
+    //example 3 引申：
+    Promise.resolve()
+      .then(() => console.log(10))
+      .then(() => console.log(11))
+      .then(() => console.log(12))
+      .then(() => console.log(13))
+
+    Promise.reject()
+      .then()
+      .then()
+      .catch(() => console.log(20))
+    
+    //输出：10 11 12 20 13 //每个then都会被执行
+  </script>
+
+  <script>
+    // async函数总是返回一个promise
+    // example 1
+    async function async1 () {
+      var res = await async2()
+      console.log(`A:${res}`)
+    }
+
+    // 遇到第一个then，任务队列中加入第1个微任务；
+    // 执行完同步代码后返回一个promise(fulfilled状态后的值为4)；继续执行async1中的代码，遇到await，任务队列中加入第2个微任务；
+    // ( 此时，async1中的代码相当于：Promise.resolve(4).then(res => { console.log(`A:${res}`) }) )
+    async function async2 () {
+      new Promise((resolve, reject) => {
+        console.log('B')
+        resolve(1)
+      }).then(res => {
+        console.log('C');
+        return 2
+      }).then(res => {
+        console.log('D');
+        return 3
+      });
+      console.log('E');
+      return 4;
+    }
+
+    async1()
+
+    //执行同步代码，遇到第一个then，任务队列中加入第3个微任务
+    new Promise((resolve) => {
+      console.log('F')
+      resolve()
+    }).then(() => {
+      console.log('G')
+    }).then(() => {
+      console.log('H')
+    })
+
+    // B E F C A:4 G D H
+
+
+    // example 2
+    // 以下两个结论很重要
+    // async function foo() {
+    //   return 1;
+    // }
+    // 等价于
+    // function foo() {
+    //   return Promise.resolve(1);
+    // }
+    //
+    // async function foo() {
+    //   await 1;
+    // }
+    // 等价于
+    // function foo() {
+    //   return Promise.resolve(1).then(() => undefined);
+    // }
+
+    var sum = async (a, b) => {
+      return a + b;
+    }
+    var f1 = async (x, y) => {
+      console.log("enter f1")
+      let r = await sum(x, y);
+      console.log("f1:" + r);
+      return r;
+    }
+    var f2 = async (m, n) => {
+      console.log("enter f2")
+      let r = await sum(m, n);
+      console.log("f2:" + r);
+      return r;
+    }
+    var case1_4 = async () => {
+      //console.log(f2(3, 4))
+      f1(1, 2).then(res => {console.log("f1.then:", res)});
+      f2(3, 4).then(res => {console.log("f2.then:", res)});
+    }
+    case1_4();
+    // enter f1
+    // enter f2
+    // f1: 3
+    // f2: 7
+    // f1.then: 3
+    // f2.then: 7
+  </script>
+
+
+
+  <script>
+    let p1 = new Promise(function(resolve, reject) { 
+        resolve(42); 
+    }).then(res=>{console.log(111)});
+    let p2 = new Promise(resolve => {
+        resolve(p1)
+    }).then(res => { console.log(res, 222) }); 
+    new Promise(resolve => {
+        resolve()
+    }).then(() => {
+        console.log('aaa')
+    }).then(() => {
+        console.log('bbb')
+    }).then(() => {
+        console.log('ccc')
+    })
+
+    // let p1 = new Promise(function(resolve, reject) { 
+    //     resolve(42); 
+    // }).then(res=>{console.log(111)});
+    // let p2 = Promise.resolve(p1).then(res => { console.log(res, 222) }); 
+    // new Promise(resolve => {
+    //     resolve()
+    // }).then(() => {
+    //     console.log('aaa')
+    // }).then(() => {
+    //     console.log('bbb')
+    // }).then(() => {
+    //     console.log('ccc')
+    // })
+  </script>
+</body>
+</html>

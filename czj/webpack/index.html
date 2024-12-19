@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>webpack</title>
+</head>
+<body>
+  一、Hot Module Replacement(HMR): 模块热替换
+    1、webpack自带的HMR插件 HotModuleReplacementPlugin是使用webpack热更新功能的基础。其他的第三方插件如webpack-hot-middleware、vue-router等都是要配合webpack自带的HotModuleReplacementPlugin插件提供的api来实现代码的热更新。
+    2、HotModuleReplacementPlugin 为可以使用HMR的模块提供了 module.hot，它为一个对象，其含有很多api，这样利用插件提供的这些api可以为模块实现自定义的热更新逻辑。
+    3、webpack HMR使用冒泡(bubble)机制更新。
+      如：A.js中通过module.hot.accept()实现热更新；A.js中引入了B.js;B.js中并没有使用module.hot.accept()；当B.js发生变化时，尽管B.js中并没有使用HMR代码捕获变化，但是B的变化消息会冒泡到依赖B.js的A中。
+    4、搭建带HMR的本地开发node sever：参考 nodejs/http-server项目。
+</body>
+</html>

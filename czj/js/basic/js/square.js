@@ -1,0 +1,1 @@
+export const squareArea = (side) => side * side;

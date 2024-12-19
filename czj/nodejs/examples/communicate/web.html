@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script src="jquery-3.2.1.min.js"></script>
+	</head>
+	<body>
+		<script>
+			let url = 'http://127.0.0.1:8888/test';
+			/* $.ajax({
+				url: url,
+				type: 'get',
+				//data: formData,
+				processData: false,
+				contentType: false,
+				headers: {
+					//'Content-Type': 'application/json;charset=UTF-8',
+				},
+				success: function(res){
+					console.log(1, res)
+				},
+				error: function(err){
+					console.log(2, err)
+				}
+			}); */
+			setTimeout(() => {console.log(1)}, 0)
+			getRequest(url).then(res => {console.log(res)});
+			
+			function getRequest(url){
+				let p = new Promise((resolve, reject) => {
+					let xhr = new XMLHttpRequest();
+					xhr.open('GET', url, true);
+					xhr.onreadystatechange = function() {
+						console.log(this.readyState)
+						if(this.readyState === 4){
+							if(this.status === 200){
+								resolve(this.responseText, this);
+							}else{
+								reject('fail');
+							}
+						}
+					}
+					xhr.send();
+				});
+				return p;
+			}
+			
+		</script>
+	</body>
+</html>

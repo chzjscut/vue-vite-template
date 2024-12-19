@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<title></title>
+</head>
+<body>
+<script>
+	// 1、call(), apply();
+	// 2、bind();
+	// 3、Object.create();
+	// 4、instanceof 操作符;
+	// 5、深浅拷贝;
+	// 6、Object.defineProperty();
+	// 7、new 操作符;
+	// 8、函数柯里化
+	// 1、理解js中的call、apply方法
+	// 
+	// 1.1、call方法的使用
+	function f1(){
+		console.log(this);
+		console.log('i am f1');
+	}
+	function f2(){
+		console.log(this);
+		console.log('i am f2');
+	}
+	//f1.call.call(f2); // Window, 'object', 'i am f2'
+	//其实就等价于 window.f2();
+	//
+	//1.2、call方法原理
+	//
+	//模拟js中的call()方法
+	//思路：将要改变this指向的方法挂到目标this上执行并返回
+	Function.prototype.mycall = function(context){
+		if(typeof this !== 'function'){
+			throw new TypeError('not function');
+		}
+
+		var context = context || window;
+		context.fn = this;
+		let args = [...arguments].slice(1);
+		let result = context.fn(...args);
+		delete context.fn;
+		return result;
+	}
+	//f1.mycall.mycall(f2);
+	//解析：f1.mycall其实就是Function原型上的mycall方法，所以
+	//		f1.mycall.mycall(f2)就相当于执行f2.(fl.mycall) == f2.call();因为call方法中没有传上下文，所以默认为Window
+	//		如下：
+	//f2.fn = f1.mycall;
+	//f2.fn();
+	//
+	//1.3、apply方法原理：和call类似，只是接收的第二个参数是一个数组
+	//
+	//模拟js中的apply()方法
+	Function.prototype.myapply = function(context){
+		var context = context || window;
+		context.fn = this;
+		let result;
+		if(arguments[1]){
+			result = context.fn(...arguments[1]);
+		}else{
+			result = context.fn();
+		}
+		delete context.fn;
+		return result;
+	}
+	//
+	//2、理解js中的bind方法
+	//
+	//2.1、bind方法的使用
+	console.log('---------------------------bind()------------------------------');
+	var f = f1.bind(f2);
+	console.log(f);
+	f();
+	var f_ins = new f();
+	console.log(f_ins);
+
+	//2.2、bind方法原理
+	//模拟js中的bind()方法
+	//思路；类似call，但是返回的是函数
+	Function.prototype.mybind = function(context){
+		let fToBind = this;
+		let args = [...arguments].slice(1);
+		return function F(){
+			if(this instanceof F){ //创建实例
+				return new fToBind(...args, ...arguments);
+			}else{ //普通函数调用
+				return fToBind.apply(context, args.concat(...arguments));
+			}
+		}
+	}
+	/*Function.prototype.mybind = function(oThis) {
+	    var aArgs = Array.prototype.slice.call(arguments,1),
+        //由于bind是原型方法,fToBind指调用bind的函数对象
+        fToBind = this,
+        F = function(){},
+        fBound = function(){
+            //fBound若作为构造函数，则this就是fBound构造出来的对象
+            //构造函数中有return，若return的是标量，则忽略，return的是对象，则覆盖构造的实例
+            //console.log(this,this instanceof fBound);
+            return fToBind.apply(this instanceof F ? this : oThis || this,aArgs.concat(Array.prototype.slice.call(arguments)))
+        };
+
+	    F.prototype = fToBind.prototype;
+	    fBound.prototype = new F();
+
+	    return fBound;
+	}*/
+	console.log('\n模拟一个bind方法并使用：');
+	var fn = f1.mybind(f2);
+	console.log(fn);
+	fn();
+	var fn_ins = new fn();
+	console.log(fn_ins);
+
+
+	console.log('---------------------Object.create()--------------------------');
+	//3、理解js中的Object.create方法
+	//
+	//3.1、Object.create方法的使用
+	//
+	//3.2、Object.create方法原理
+	//模拟Object.create方法
+	//思路：将传入的对象作为原型
+	function create(obj){
+		//function F(){};
+		//F.prototype = obj;
+		//F.prototype.constructor = obj.constructor;
+		//return new F();
+		var targetObj = new Object();
+		targetObj.__proto__ = obj;
+		return targetObj;
+	}
+
+	//测试
+	var person = {
+		name: 'human',
+		intests: ['sing', 'reading'],
+		printName: function(){
+			console.log(this.name)
+		}
+	};
+	var jack = create(person);
+	var tom = Object.create(person);
+	console.log(jack,tom,person);
+	jack.name="Jack";
+	console.log(jack.name,tom.name,person.name);
+	//父类
+	function Person(name){
+		this.name = name;
+		this.races = ['white', 'yellow'];
+		Object.defineProperty(this, 'feature', {
+			value: 'speaking',
+			enumerable: false
+		});
+	}
+	Person.prototype.sayName = function(){
+		console.log(this.name);
+	}
+	var person0 = new Person('human0');
+	var person1 = new Person('human1');
+	var person2 = create(person1);
+	var person3 = Object.create(person1);
+	var person4 = Object.create(person1);
+	console.log(person0,person1,person2,person3);
+	person3.races.push('black');
+	console.log(person0,person1,person2,person3,person4);
+
+	//假设另一个父类为：
+	function AnotherPerson(){
+		this.description = 'another parent class';
+	}
+	//子类(继承多个父类)
+	function Student(name){
+		Person.call(this, name);
+		AnotherPerson.call(this);
+		this.job = 'student';
+	}
+	//子类继承父类
+	Student.prototype = new Person();
+	//混合其他父类
+	Object.assign(Student.prototype, AnotherPerson.prototype);
+	//如果用Object.create()来实现为：
+	//Student.prototype = Object.create(Person.prototype);
+	//Object.assign(Student.prototype, AnotherPerson.prototype);
+	Student.prototype.constructor = Student;
+	var s1 = new Student('jack');
+	var s2 = create(s1);
+	var s3 = Object.create(s1);
+	console.log(s1,s2,s3,s2.__proto__===s1,s3.__proto__===s1);
+	var s4 = new Object(s1);
+	console.log(s4===s1);
+	//jack.name = 'Jack';
+	//问题：对于引用类型的属性，在实例中修改会同步到原型上
+	/*jack.interests.push('swimming');
+	console.log(jack.interests, person.interests);
+	jack.printName();
+	person.printName();*/
+
+	/*
+	 * Object.create() 和 new Object() 区别：
+	 * 	   1. Object.create()必须接受一个对象参数，创建的新对象的原型指向接收的参数对象，此外，如果不传入第二个参数，
+	 * 	   	  Object.create()始终创建一个无自身属性的对象(即使第一个参数对象有自身属性)；
+	 * 	   	  new Object()可以不传参数，创建一个空对象；如果传入对象参数，则返回该对象；
+	 * 	   2. 通过Object.create(null)可以创建一个干净的空对象（没有__proto__），new Object()则做不到；
+	 */
+	
+	console.log('-------------------instanceof操作符----------------------');
+	//4、理解js中的instanceof操作符
+	//
+	//4.1、instanceof操作符的使用
+	//
+	//4.2、instanceof操作符原理
+	//写一个方法，实现instanceof操作符功能
+	//思路：右边变量的原型存在于左边变量的原型链上
+	function instanceOf(left, right){
+		let leftValue = left.__proto__;
+		let rightValue = right.prototype;
+
+		while(true){
+			if(leftValue === null){
+				return false;
+			}
+			if(leftValue === rightValue){
+				return true;
+			}
+			leftValue = leftValue.__proto__;
+		}
+	}
+
+	console.log('-------------------深浅拷贝--------------------');
+	//5、理解js中的浅拷贝和深拷贝
+	//
+	//5.1、使用
+	//
+	var a={x:1,y:{z:2}};
+	var b=a; //浅拷贝（直接影响：修改a.x会影响b.x）
+	var c={...a}; //浅拷贝：修改a.x值c.x不会变，但是修改a.y.z的值会影响到c.y.z（自第二层结构开始影响）
+	var d=Object.assign({},a); //同上面的解构赋值
+
+	//通过JSON.stringify和JSON.parse实现深拷贝
+	//JSON.stringify()问题（特点）：
+	/*  非数组对象的属性不能保证以特定的顺序出现在序列化后的字符串中。
+		布尔值、数字、字符串的包装对象在序列化过程中会自动转换成对应的原始值。
+		undefined、任意的函数以及 symbol 值，在序列化过程中会被忽略（出现在非数组对象的属性值中时）
+		或者被转换成 null（出现在数组中时）。
+		所有以 symbol 为属性键的属性都会被完全忽略掉，即便 replacer 参数中强制指定包含了它们。
+	*/
+	var e=JSON.parse(JSON.stringify(a)); //深拷贝：a和e互相独立
+	//递归拷贝（深拷贝）
+	function deepClone(obj){
+		let copy = obj instanceof Array ? [] : {};
+		for(let key in obj){
+			if(obj.hasOwnProperty(key)){
+				copy[key] = typeof obj[key] === 'object' ? deepClone(obj[key]) : obj[key];
+			}
+		}
+		return copy;
+	}
+
+	console.log('--------------Object.defineProperty-------------------');
+	//6、Object.defineProperty()
+	//语法：Object.defineProperty(obj, prop, descriptor)
+	//返回值： 被传递给函数的对象
+	//对象的属性描述符：数据描述符和存取描述符；
+	//数据描述符是一个具有值的属性，该值可能是可写的，也可能不是可写的。存取描述符是由getter-setter函数对描述的属性；
+	//描述符必须是这两种形式之一；且不能同时是两者（两者不能同时存在）
+	//数据描述符和存取描述符均具有以下可选键值(默认值是在使用Object.defineProperty()定义属性的情况下)：
+	//configurable
+	//	当且仅当该属性的 configurable 为 true 时，该属性描述符才能够被改变，同时该属性也能从对应的对象上被删除。默认为 false。
+	//enumerable
+	//	当且仅当该属性的enumerable为true时，该属性才能够出现在对象的枚举属性中。默认为 false。
+	//	
+	//数据描述符同时具有以下可选键值：
+	//value
+	//	该属性对应的值。可以是任何有效的 JavaScript 值（数值，对象，函数等）。默认为 undefined。
+	//writable
+	//	当且仅当该属性的writable为true时，value才能被赋值运算符改变。默认为 false。
+	//	
+	//存取描述符同时具有以下可选键值：	
+	//get
+	//	一个给属性提供 getter 的方法，如果没有 getter 则为undefined。当访问该属性时，该方法会被执行，方法执行时没有参数传入，但
+	//	是会传入this对象（由于继承关系，这里的this并不一定是定义该属性的对象）。默认为 undefined。
+	//set
+	//	一个给属性提供 setter 的方法，如果没有 setter 则为undefined。当属性值修改时，触发执行该方法。该方法将接受唯一参数，即
+	//	该属性新的参数值。默认为 undefined。
+	
+	//描述符中省略某些字段时，这些字段将使用它们的默认值。拥有布尔值的字段的默认值都是false。value，get和set字段的默认值为
+	//undefined。一个没有get/set/value/writable定义的属性被称为“通用的”，并被“键入”为一个数据描述符
+	var obj1 = {namer:'obj'}, obj2 = {};
+	Object.defineProperty(obj1, 'num', {
+		configurable: false,
+		enumerable: true,
+		value: 10,
+		writable: true
+	});
+	console.log(obj1.num);
+
+	function Super(){
+		Object.defineProperty(this, 'name', {
+			configurable: true,
+			enumerable: true,
+			value: 'super',
+			writable: false
+		});
+	}
+	var super1 = new Super();
+	console.log(super1.name);
+	super1.name = 'super change';
+	console.log(super1.name);
+
+	let num2 = null;
+	Object.defineProperty(obj2, 'num', {
+		configurable: true,
+		enumerable: true,
+		get: function(){
+			console.log('getting value');
+			return num2;
+		},
+		set: function(newValue){
+			console.log('setting value');
+			num2 = newValue;
+		}
+	});
+	console.log(obj2.num);
+	obj2.num = 10;
+	console.log(obj2.num);
+
+
+	//7、new操作符
+	//模拟new操作符
+	function myNew(fun){
+
+		return function(){
+			var o = {
+				__proto__: fun.prototype
+			};
+			fun.call(o, ...arguments);
+			return o;
+		}
+	}
+	var person5 = myNew(Person)('police');
+	console.log(person5);
+
+	//8、柯里化：把接受多个参数的函数变换成接受一个单一参数（最初函数的第一个参数）的函数，
+	//			 并且返回接受余下的参数而且返回结果的新函数的技术
+	//例如：实现一个add方法：
+	//add(1)(2)(3) = 6;
+	//add(1, 2, 3)(4) = 10;
+	//add(1)(2)(3)(4)(5) = 15;
+
+	// js Proxy()
+</script>
+</body>
+</html>

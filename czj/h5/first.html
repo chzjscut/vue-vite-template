@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>page 1</title>
+	</head>
+	<body>
+    <div style="width:500px;height:400px;">
+      <iframe allowfullscreen="true" allowtransparency="true" width="100%" height="100%" frameborder="0" src="http://10.82.0.40:8848/privateProject/h5/test.html"></iframe>
+    </div>
+    
+		<button onclick="doClick()">打开新页面</button>
+    <a href="./second.html" target="task_modal">打开新页面</a>
+    
+		<!-- <iframe id="iframe" src="./second.html"></iframe> -->
+		<script>
+			//var newWin = window.open('http://127.0.0.1:8848/privateProject/h5/second.html')
+			//newWin.postMessage("Hello", "http://127.0.0.1:8848")
+			function doClick(){
+				//var newWin = document.getElementById('iframe').contentWindow;
+				var newWin = window.open('second.html')
+				//console.log(newWin)
+				//newWin.document.body.innerText = 'haha';
+				/* setTimeout(function() {
+					newWin.postMessage('nihao', "/")
+				}, 1000) */
+			}
+			
+			function receiveMessage(event){
+			  //var origin = event.origin
+			  console.log(event.data)
+			}
+			
+			window.addEventListener("message", receiveMessage, false);
+		</script>
+	</body>
+</html>

@@ -1,0 +1,12 @@
+ModuleConcatenationPlugin使用：提升(hoist)或者预编译所有模块到一个闭包中，提升你的代码在浏览器中的执行速度；
+
+
+
+
+
+
+
+
+todo：
+
+1、开启gzip压缩

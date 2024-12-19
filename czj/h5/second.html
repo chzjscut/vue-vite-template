@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>page 2</title>
+	</head>
+	<body>
+		<button onclick="reply()">回传</button>
+		<script>
+			let originWindow = window.opener;
+			//alert(originWindow.location.href)
+			//originWindow.document.body.innerHTML = 'from second'
+			function reply(){
+				originWindow.postMessage("Who are you ?", originWindow.origin);
+			}
+			
+			function receiveMessage(event){
+				console.log(event.data)
+				event.source.postMessage("Who are you ?", event.origin);
+			}
+			
+			window.addEventListener("message", receiveMessage, false);
+		</script>
+	</body>
+</html>

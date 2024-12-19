@@ -1,0 +1,30 @@
+目前动态表单已支持功能：
+  
+  1、支持 input，select(包括多选), textarea, DatePicker 基础表单组件；
+  2、支持一些通用设置：
+	所有表单组件 -- visible，disabled，简单校验，default（是否有默认值）；
+	select组件 -- dictionary（options数据源），isLabelInValue（同时获取option的label和value），showSearch（支持选项过滤），
+		      dropdownRender（自定义下拉内容渲染）
+	DatePicker -- picker（选择器类型），format（格式）
+
+  3、支持一些特殊处理：
+	关联字段查询 -- 
+	日期格式输出时，转换为string（目前采用隐藏一个input方式）；
+
+
+
+
+
+
+
+需要优化和扩展的地方：
+
+  扩展
+    1、表单回显，单个表单项修改
+    2、特殊处理表单项：账号信息和关联问题；过滤条件里的 排序；
+    //3、表单布局
+
+
+
+  优化
+    1、日期格式输出string：是否有更好方式（目前方法在重置表单，表单回显时会有问题）

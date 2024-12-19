@@ -1,0 +1,42 @@
+
+问题：如何在原vue项目（基于js）中混用ts
+
+解决：1、安装typescript和ts-loader
+	
+	npm i typescript ts-loader --save-dev
+
+      2、安装vue-property-decorator   -- 不确定是否必须安装
+
+      3、配置vue.config.js
+
+	module.exports = {
+ 	    configureWebpack: {    
+    		resolve: { extensions: [".ts", ".tsx", ".js", ".json"] },    
+    		module: {        
+      		    rules: [    
+        		{    
+          		  test: /\.tsx?$/,    
+          		  loader: 'ts-loader',    
+          		  exclude: /node_modules/,    
+          		  options: {
+            		    appendTsSuffixTo: [/\.vue$/],    
+          		  }    
+        		}        
+      		    ]    
+    		}    
+  	    }  
+	}
+
+      4、新建tsconfig.json
+
+      5、在src目录下新建vue-shim.d.ts文件（不加可能会报错），内容如下：
+	
+	declare module "*.vue" {
+  	    import Vue from "vue";
+  	    export default Vue;
+	}
+
+      6、如果报 TypeScript emitted no output for ... 错，需要在tsconfig.json中的compilerOptions选项中添加：
+
+	"noEmit": false
+

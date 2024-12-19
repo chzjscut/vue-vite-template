@@ -1,0 +1,28 @@
+重难点复习：
+
+1、js：  https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/A_re-introduction_to_JavaScript
+
+    promise，async/await；
+    es6；
+    数组，字符串等常用api；
+    面向对象；
+    闭包；
+    作用域和作用域链，this；
+    原型，原型链；
+    bind，apply，call；
+
+
+2、vue
+  
+    源码：diff，虚拟dom，响应式数据...
+    api加强；
+
+
+3、http相关
+4、webpack
+5、babel
+6、react
+
+
+其他框架:
+svelte, fre

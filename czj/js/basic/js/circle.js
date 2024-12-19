@@ -1,0 +1,1 @@
+export const circleArea = radius => Math.PI * radius * radius;

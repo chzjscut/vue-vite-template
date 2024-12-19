@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8'>
+  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+  <title>object</title>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+</head>
+<body>
+  <script>
+    // 一、new一个对象过程（假设构造函数为Person）：
+    /**
+     * 1、var obj = {};                     //创建一个空对象；
+     * 2、obj.__proto__ = Person.prototype; //完成原型链构建；
+     * 3、Person.call(obj, ...params);      //改变this指向并执行构造函数代码(可以在构造函数中验证,见下面例子)
+     * 4、return obj;
+     * 
+     * ps: 如果构造函数中返回引用类型的值，则新建的实例的值为这个引用类型的返回值，否则为构造函数的实例对象。例如：
+     **/
+    function A(){
+      this.id = 1;
+      setTimeout(() => {
+        this.id++;
+      }, 1000);
+    }
+    var a = new A(); //a={id: 1}, a为A的实例对象
+    //一秒后执行
+    a.id; // 2
+
+    function A(){
+      this.id = 1;
+      return { id: 10 }
+    }
+    var a2 = new A(); //a2 = {id: 10}
+    a2.__proto__ === A.prototype; //false
+    a2.constructor.name === 'Object' // true
+
+
+    // 二、继承的几种方式
+    /**
+     * 1、构造函数继承：Parent.call(this)
+     *    优点：
+     *        1)可以向父类传参
+     *        2)避免了共享属性
+     *    缺点：
+     *        1)只是子类的实例，不是父类的实例
+     *        2)方法都在构造函数中定义，每次创建实例时都会创建一遍方法
+     * 
+     * 2、原型链继承：Child.prototype = new Parent()
+     *    优点：1的缺点
+     *    缺点：1的优点
+     * 
+     * 3、组合继承：1和2的组合（推荐）
+     *    优点：1和2的优点
+     *    缺点：调用了两次父类构造函数
+     * 
+     * 4、寄生组合继承：子类构造函数复制父类的自身属性和方法，子类原型只接受父类的原型属性和方法（最佳）
+     *    function createPurePrototype(prototype) {
+     *      function Super(){}
+     *      Super.prototype = prototype;
+     *      return new Super();
+     *    }
+     *    Child.prototype = createPurePrototype(Parent.prototype); //原来是通过 Child.prototype = new Parent() 实现继承
+     * 
+     * 5、ES6 extends（最佳）
+     * 
+     **/
+  </script>
+
+  <script>
+    /**
+     * Employee 示例
+     * Employee 具有 name 属性（默认值为空的字符串）和 dept 属性（默认值为 "general"）。
+     * Manager 是 Employee的子类。它添加了 reports 属性（默认值为空的数组，以 Employee 对象数组作为它的值）。
+     * WorkerBee 是 Employee的子类。它添加了 projects 属性（默认值为空的数组，以字符串数组作为它的值）。
+     * SalesPerson 是 WorkerBee的子类。它添加了 quota 属性（其值默认为 100）。它还重载了 dept 属性值为 "sales"，表明所有的销售人员都属于同一部门。
+     * Engineer 基于 WorkerBee。它添加了 machine 属性（其值默认为空字符串）同时重载了 dept 属性值为 "engineering"
+     *       
+     *             __Manager
+     * Employee __|               __SalesPerson
+     *            |__WorkerBee __|
+     *                           |__Engineer
+     * 
+     **/
+
+    //js
+    function Employee(name, dept) {
+      this.name = name || "";
+      this.dept = dept || "general";
+    }
+    function Manager(name, dept, reports) {
+      Employee.call(this);
+      this.reports = [];
+    }
+    //Manager.prototype = Employee.prototype;
+    Manager.prototype = new Employee();
+    // or Manager.prototype = Object.create(Employee.prototype); //推荐用这种方式，上面的方式会多调用一次构造函数，
+    // 这会导致一些其他问题：比如想要在构造器中设置全局信息时（通过递增计数器给每个实例分配一个唯一标识符），以上方式也
+    // 会调用构造器导致计数器增加
+    Manager.prototype.constructor = Manager; //修复构造函数指向
+    function WorkerBee() {
+      Employee.call(this);
+      this.projects = [];
+    }
+    WorkerBee.prototype = Object.create(Employee.prototype);
+    function SalesPerson() {
+      WorkerBee.call(this);
+      this.dept = "sales";
+      this.quota = 100;
+    }
+    SalesPerson.prototype = Object.create(WorkerBee.prototype);
+    function Engineer() {
+      WorkerBee.call(this);
+      this.dept = "engineering";
+      this.machine = "";
+    }
+    Engineer.prototype = Object.create(WorkerBee.prototype);
+    //java
+    /*
+      public class Emplyee {
+        public String name = "";
+        public String dept = "general";
+      }
+      public class Manager extends Emplyee {
+        public Emplyee[] reports = new Employee[0];
+      }
+      public class WorkerBee extends Emplyee {
+        public String[] projects = new String[0];
+      }
+      public class SalesPerson extends WorkerBee {
+        public String dept = "sales";
+        public double quota = 100.0;
+      }
+      public class Engineer extends WorkerBee {
+        public String dept = "engineering";
+        public String machine = "";
+      }
+    */
+    var m1 = new Manager();
+    console.log(m1 instanceof Manager, m1.constructor.name);
+
+    // class extends 原理
+    // class Human {}
+    // class SuperHero extends Human {}
+    // const superMan = new SuperHero();
+    //等同于
+    // class Human {}
+    // class SuperHero {}
+    // Object.setPrototypeOf(SuperHero.prototype, Human.prototype);  //Set the instance properties
+    // Object.setPrototypeOf(SuperHero, Human); // Hook up the static properties -- 为什么要这一行？？
+    // const superMan = new SuperHero();
+  </script>
+</body>
+</html>

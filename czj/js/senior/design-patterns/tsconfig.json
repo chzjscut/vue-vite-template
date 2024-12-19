@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "module": "system",
+    "noImplicitAny": true,
+    "outDir": "dist",
+    "removeComments": true,
+    "rootDir": "src",
+    "preserveConstEnums": true,
+    "sourceMap": true
+  },
+  "include": [
+    "**/*.ts",
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts"
+  ]
+}

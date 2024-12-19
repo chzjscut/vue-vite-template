@@ -1,0 +1,45 @@
+.mt10 {
+  margin-top: 10px;
+}
+.mt20 {
+  margin-top: 20px;
+}
+.bold {
+  font-weight: bold;
+}
+.half-width {
+  width: 50%;
+}
+.info {
+  color: #909399;
+}
+.primary {
+  color: #409EFF;
+}
+.success {
+  color: #67C23A;
+}
+.warning {
+  color: #E6A23C;
+}
+.error {
+  color: #F56C6C;
+}
+
+.tags {
+  padding: 15px;
+}
+.dt-tag {
+  padding: 3px 5px;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  & + .dt-tag {
+    margin-left: 10px;
+  }
+  &.active {
+    color: #fff;
+    background-color: #409EFF;
+    border-color: #409EFF;
+  }
+}

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>class</title>
+</head>
+<body>
+  <script>
+    //类声明
+    class Polygon {
+
+    }
+    class Rectangle {
+      // point 1: 类体执行在严格模式下('use strict')
+
+      //公有字段
+      width = 100;
+      height = 50;
+
+      //私有字段
+      // 1、必须预先声明(可不初始化)
+      // 2、不能从类外部直接引用私有字段
+      #width = 10;
+      #height;
+
+      //构造函数
+      constructor(width, height) {
+        //实例属性
+        //this.width = width || this.width;
+        //this.height = height || this.height || 5;
+
+        if(width) {
+          this.instanceWidth = width;
+        }
+
+        this.#width = width || this.#width;
+        this.#height = height || this.#height;
+      }
+
+      //静态属性
+      static polygonName = 'rectangle';
+
+      //静态方法
+      static areaSum(rectA, rectB) {
+        //console.log(this);
+        return rectA.area + rectB.area;
+      }
+
+      // getter
+      get area() {
+        return this.height * this.width;
+      }
+
+      // setter
+      set newWidth(val) {
+        this.width = val;
+      }
+
+      //原型方法
+      //计算周长
+      girth() {
+        //console.log(this);
+        return 2 * (this?.width + this?.height);
+      }
+    }
+
+    class Square extends Rectangle {
+      constructor(length) {
+        super(length, length);
+      }
+    }
+
+    const rect1 = new Rectangle(20, 15);
+    const rect2 = new Rectangle();
+    const square1 = new Square();
+    console.log(rect1.area, rect2.area)
+    rect1.girth();
+    Rectangle.areaSum(rect1, rect2);
+
+    // 方法内部的 this 为 undefined 而不是全局对象window(有别于传统的基于函数语法的类实现),
+    // 其实本质原因是上面的 point 1(use strict导致)
+    let girth = rect1.girth;
+    let areaSum = Rectangle.areaSum;
+    areaSum({}, {}); //undefined
+    girth(); //undefined
+
+
+    console.log(Rectangle.polygonName)
+  </script>
+  <script>
+    // example
+    class Person {
+      constructor(name, sex, age) {
+        this.name = name;
+        this.sex = sex;
+        this.age = age;
+      }
+
+      greet() {
+        console.log(`Hi, my name is ${this.name}.`);
+      }
+    }
+
+    class Teacher extends Person {
+      constructor(name, sex, age, subject) {
+        //子类的构造函数中必须先调用super方法
+        super(name, sex, age); //相当于执行 Person.prototype.constructor.call(this)
+        this.subject = subject;
+      }
+
+      greet() {
+        super.greet();
+        console.log('I\'m a teacher.');
+        console.log( '\n' );
+      }
+    }
+
+    class Student extends Person {
+      score = 0;
+      constructor(name, sex, age, grade, _class, score) {
+        super(name, sex, age);
+        this.grade = grade;
+        this.class = _class;
+        this.score = score || this.score;
+      }
+
+      greet() {
+        super.greet();
+        console.log('I\'m a student.');
+        console.log( '\n' );
+      }
+
+      static examResult(score) {
+        if(score >= 90) {
+          return 'A';
+        } else if(score >= 75) {
+          return 'B';
+        } else if(score >= 60) {
+          return 'C';
+        } else {
+          return 'D';
+        }
+      }
+    }
+
+    let teacher1 = new Teacher('cici', 'female', 40, 'English');
+    let student1 = new Student('Jack', 'male', 10, '五', '2', 80);
+    teacher1.greet();
+    student1.greet();
+    console.log(Student.examResult(student1.score))
+
+    //类不能继承常规对象（不可构造的）。如果要继承常规对象，可以改用Object.setPrototypeOf():
+    // let person = {...}; Object.setPrototypeOf(Teacher.prototype, person);
+
+    // 引申问题：
+    //   student1.__proto__ === Student.prototype             //true, 和基于构造函数创建对象一致
+    //   Student.prototype.__proto__ === Person.prototype     //true, 同上
+
+    // 类继承含示：Object.setPrototypeOf(Student, Person),因此有：
+    //   Student.__proto__ === Person                         //true
+    //   Person.__proto__ === Function.prototype              //true
+    //ps: class继承时同时存在两条继承链：Student.prototype.__proto__ === Person.prototype 和 Student.__proto__ === Person    
+
+    /**
+     * super关键字
+     *  1、可作为函数使用，表示父类构造函数，相当于执行：父类.prototype.constructor.call(子类this)；
+     *     super作为函数时，只能在子类的构造函数中调用，在其他地方调用会报错。
+     *  2、作为对象使用，指向父类的原型对象(父类.prototype)，此时：
+     *     1) ES6规定，通过super调用父类的方法时，super会绑定子类的this
+     *     2) 通过super对某个属性赋值，相当于在子类上添加了一个实例属性:
+     *        super.a = 1;
+     *        console.log(this.a);  //1
+     *        console.log(super.a); //undefined (父类.prototype.a)
+     *     3) 在静态方法中指向父类
+     * 
+     **/
+
+    // Mix-ins / 混入                // 待研究
+  </script>
+</body>
+</html>

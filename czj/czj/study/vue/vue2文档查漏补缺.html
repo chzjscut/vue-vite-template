@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>vue2文档查漏补缺</title>
+  </head>
+  <body>
+    1、模块化（非vue范畴）
+      commonJS(nodejs)
+      amd(require.js),
+      cmd(sea.js),
+      umd(整合commonJS和amd),
+      ES Module 等
+      <br>
+    2、Web 组件规范（Web Components）
+      <br>
+    3、el, render, template, jsx
+      <a href="https://cn.vuejs.org/v2/guide/render-function.html">渲染函数&JSX</a>
+      <br>
+    4、修饰符：事件修饰符，按键修饰符，系统修饰符，v-model修饰符
+      <a href="https://cn.vuejs.org/v2/guide/events.html#%E4%BA%8B%E4%BB%B6%E4%BF%AE%E9%A5%B0%E7%AC%A6">详情</a>
+      <a href="https://cn.vuejs.org/v2/guide/forms.html#%E4%BF%AE%E9%A5%B0%E7%AC%A6">v-model修饰符</a>
+      <br>
+    5、计算属性和侦听器
+      <br>
+    6、key：管理可复用的元素
+      <a href="https://cn.vuejs.org/v2/guide/conditional.html#%E7%94%A8-key-%E7%AE%A1%E7%90%86%E5%8F%AF%E5%A4%8D%E7%94%A8%E7%9A%84%E5%85%83%E7%B4%A0">详情</a>
+      <br>
+    7、v-for：“就地更新”策略（diff算法）
+      <br>
+    8、Vue 不能检测数组和对象的变化的原因（JavaScript 的限制）
+      <br>
+    9、is：作用
+      <a href="https://cn.vuejs.org/v2/guide/list.html#%E5%9C%A8%E7%BB%84%E4%BB%B6%E4%B8%8A%E4%BD%BF%E7%94%A8-v-for">详情</a>
+      <a href="https://cn.vuejs.org/v2/guide/components.html#%E8%A7%A3%E6%9E%90-DOM-%E6%A8%A1%E6%9D%BF%E6%97%B6%E7%9A%84%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9">详情2</a>
+      <a href="https://cn.vuejs.org/v2/guide/components.html#%E5%8A%A8%E6%80%81%E7%BB%84%E4%BB%B6">动态组件</a>
+      <br>
+    10、$event：访问原始的 DOM 事件
+    11、原生表单：radio和checkbox（组）
+    12、Vue.extend()
+    13、vue插件开发
+    <script>
+      // 细节点
+      //1、除了在data中添加一个新的（不存在的）property时，对该property改动不会触发视图更新外，
+      //   通过Object.freeze()设置的obj赋给data时，会阻止修改obj中的值，也意味着响应系统无法再追踪变化。
+      
+      //2、v-once指令：一次性插值，当数据改变时，插值处的内容不会更新（<span v-once>这个将不会改变: {{ msg }}</span>）
+    </script>
+  </body>
+</html>

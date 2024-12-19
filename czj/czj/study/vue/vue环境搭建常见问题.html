@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>vue项目搭建常见问题</title>
+  </head>
+  <body>
+    <h3>基于vue2版本</h3>
+    1、[Vue warn]: You are using the runtime-only build of Vue where the template compiler is not available. <br>
+    Either pre-compile the templates into render functions, or use the compiler-included build.
+    错误原因：本地vue项目的运行模式与引用的vuejs文件对应的模式不一致。<br>
+    详细解释：vue包含两种运行模式：完整版（compiler + runtime）模式和runtime模式（运行时）。引入的vuejs包默认使用的是runtime模式（vue模块的package.json的main字段默认为runtime模式），<br>
+    指向了"dist/vue.runtime.common.js"；而我们本地项目中的main.js文件中，初始化Vue实例时（可能）用的是compiler模式：<br>
+    <pre>
+      // compiler
+      new Vue({
+        el: '#app',
+        router,
+        template: '<App/>', //template需要编译模式才能生效
+        components: { App }
+      })
+    </pre>
+    解决办法：将引入的vuejs和本地项目运行模式改为一致即可。<br>
+    方法1：修改上面代码为runtime模式（和引入的vuejs包模式保持一致）
+    <pre>
+      // runtime
+      new Vue({
+        router,
+        render: h => h(App)
+      }).$mount('#app')
+    </pre>
+    方法2：修改webpack配置，将引入的vuejs包指向 vue.esm.js（完整版）
+    <pre>
+      resolve: {
+        alias: {
+          'vue$': 'vue/dist/vue.esm.js',
+        }
+      }
+    </pre>
+    ps: 上面代码会将 import Vue from ‘vue’ 解析为 import Vue from ‘vue/dist/vue.esm.js’<br>
+    方法3：在引入vuejs包时直接使用 import Vue from ‘vue/dist/vue.esm.js’（和方法2效果一致）<br>
+    
+    2、Error: Plugin/Preset files are not allowed to export objects, only functions<br>
+    错误原因：package.json中babel安装了多个版本（或者babel-loader与babel不匹配）<br>
+    解决办法：只保留一个babel版本，并且确保与babel-loader版本一致.<br>
+    
+    3、形如：vnodes.push(< svg-icon icon-class={icon}/>) 错误<br>
+    错误原因：不识别此种jsx语法<br>
+    解决办法：需要下载对应的jsx插件并配置<br>
+      babel-plugin-transform-vue-jsx，babel-plugin-syntax-jsx，babel-helper-vue-jsx-merge-props，babel-preset-env
+    .babelrc配置：<br>
+      <pre>
+        {
+            "presets": [
+              ["env", {
+                "modules": false,
+                "targets": {
+                  "browsers": ["> 1%", "last 2 versions", "not ie <= 8"]
+                }
+              }],
+              "stage-2"
+            ],
+            "plugins": ["transform-vue-jsx", "transform-runtime"]
+        }
+      </pre>
+    不加上述配置，还会出现诸如 不识别 import 等问题；<br>
+    
+    4、Module not found: Error: Can't resolve 'path' in ...<br>
+    错误原因：webpack < 5 时默认会安装 nodejs核心模块的polyfills，webpack 5之后不再默认安装；<br>
+    解决方法：手动安装 path-browserify 包并且在webpack添加对应配置<br>
+      <pre>
+        resolve: {
+          fallback: {
+            path: require.resolve('path-browserify')
+          }
+        }
+      </pre>
+    另外有说，在tsconfig.json中配置<br>
+      <pre>
+        "types": [
+          "node", //添加这行
+          "webpack-env"
+        ]
+      </pre>
+    未验证过，不知道是否可行。<br>
+    
+    5、Syntax Error: TypeError: this.getOptions is not a function
+    错误原因：sass-loader版本过高
+    解决办法：安装低版本sass-loader和node-sass或者升级nodejs版本
+    
+    <p style="color: red">vue-cli3项目webpack配置位置：@/vue/cli-service/lib/config/css.js</p>
+  </body>
+</html>

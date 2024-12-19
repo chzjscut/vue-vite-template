@@ -1,0 +1,58 @@
+本机root密码：123456
+
+参考网站：
+    https://blog.csdn.net/muye0503/article/details/8949840 本机运行x程序出现：Can't open display 原因及其解决方法
+    https://www.jianshu.com/p/bc38ed12da1d
+    http://www.cnblogs.com/carlsplace/p/5990568.html
+    http://rtomaszewski.blogspot.com/2013/03/how-to-run-sublime-editor-on-remote.html
+
+一. 基本使用
+
+0. 切换到root用户
+    su：切换到超级用户;
+    命令：sudo passwd root，设置root密码，然后执行 su 命令输入密码即可。
+    su "king" 或者 exit 回到用户权限
+
+1. 安装node.js
+    a) 从官网(http://nodejs.cn/download/)下载安装包：执行命令 sudo wget https://nodejs.org/dist/v10.13.0/node-v10.13.0-linux-x64.tar.xz；
+    b) 解压到相应目录：tar -xvf node-v10.13.0-linux-x64.tar.xz -C ../env/，在env文件夹下会出现node文件夹
+        注：如果是当前目录则不需要-C ../env/
+    c) 建立软链接：sudo ln -s /home/env/node-v10.13.0-linux-x64/bin/node /usr/local/bin/node
+	           sudo ln -s /home/env/node-v10.13.0-linux-x64/bin/npm /usr/local/bin/npm
+        注：执行这两条命令必须在根目录下执行；
+    d) 验证：node -v 和 npm -v；
+
+2. 删除文件夹和文件
+    命令：rm -rf
+    使用规则：rm -rf 目录名字
+    -r 向下递归，不管有多少级目录，一并删除
+    -f 直接强行删除，没有任何提示
+    示例：
+        rm -rf /var/log/httpd  将会删除/var/log/httpd目录以及其下所有文件、文件夹
+        rm -f /var/log/httpd/access.log  将会强制删除/var/log/httpd/access.log这个文件
+    注意：使用 rm -rf 的时候一定要小心，Linux没有回收站。
+
+3.查看文件目录和权限
+    查看文件目录：ls
+    查看文件权限：ls -l xxx.xxx 查看xxx.xxx文件权限，如果不加具体文件名则查看当前文件夹下所有文件目录及其权限
+    说明：
+        r 表示文件可以被读（read）
+        w 表示文件可以被写（write）
+        x 表示文件可以被执行（如果它是程序的话）
+        - 表示相应的权限还没有被授予
+    
+    修改权限：
+        chmod vaule xxx.xxx 其中value表示权限值，可以是具体数值也可以是英文缩写字母；
+        如果子目录中的文件也需要修改权限，则使用参数 -R启动递归处理：
+            chmod -R 777 /home/user 包括子目录
+
+4.查看linux系统版本（32位or64位）：
+    查看32or64位：
+        输入 getconf LONG_BIT 命令，输出64则是64位，32则是32位；
+        输入 uname -a 命令，输出结果中有x86_64则是64位；
+    查看系统版本：
+        输入 cat /etc/issue 命令，输出Ubuntu 18.04.1；
+        输入 sudo lsb_release -a 命令，输出：Distributor ID: Ubuntu
+				Description:    Ubuntu 18.04.1 LTS
+				Release:        18.04
+				Codename:       bionic

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+	</head>
+	<body>
+    <script>
+      //1、手写一个Promise
+      // es6写法
+      class MyPromise {
+        constructor(fn) {
+          this.PromiseState = "pending";
+          this.PromiseResult = undefined;
+          this.PromiseReason = undefined;
+
+          let resolve = value => {
+            this.PromiseState = "fulfilled";
+            this.PromiseResult = value;
+          }
+          let reject = reason => {
+            this.PromiseState = "rejected";
+            this.PromiseReason = reason;
+          }
+
+          try {
+            fn(resolve, reject);
+          } catch (error) {
+            reject(error)
+          }
+        }
+
+        then(onFulfilled, onRejected) {
+          if(this.PromiseState === "fulfilled") {
+            onFulfilled(this.PromiseResult);
+          } else if(this.PromiseState === "rejected") {
+            onRejected(this.PromiseReason);
+          }
+        }
+      }
+      
+      var test = (resolve, reject) => {
+        resolve(1);
+        //reject(1);
+      }
+      let p1 = new MyPromise(test);
+      console.log(p1)
+      let p2 = p1.then(res => {
+        console.log("resolved:" + res)
+      }, rej => {
+        console.log("rejected:" + rej)
+      });
+      console.log('p2:', p2, 'p1:', p1)
+      
+    </script>
+
+    <script>
+      //
+      // es6中的class内部的this指向和es5的构造函数的区别
+      function T1(){
+        this.print = function() {
+          console.log(this);
+        }
+      }
+      //var t1 = new T1();
+      //const { print } = t1;
+      //print(); // this指向Window
+
+      class T2 {
+        print2() {
+          console.log(this);
+        }
+      }
+      //var t2 = new T2();
+      //const { print2 } = t2;
+      //print2(); // undefined
+
+      //原因：通过this调用的方法，实际指向的是运行时所在的环境，所以，es5例子中指向Window；
+      //     而class内部是严格模式，所以 this 实际指向的是undefined
+      //class中的解决方法
+      //  1、在constructor中绑定this：
+      //     this.print = this.print.bind(this);
+      //  2、使用箭头函数：
+      //     this.print = () => this;
+      //  3、还有一种解决方法是使用Proxy，获取方法的时候，自动绑定this
+      //
+    </script>
+	</body>
+</html>
